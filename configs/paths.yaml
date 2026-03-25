@@ -1,0 +1,24 @@
+# All paths used in this project
+# DATA always goes to blue, code stays in home
+
+project_root: /home/rkale.fgcu/local_project/conflict-damage-monitor
+blue_root: /blue/smin.fgcu/rkale.fgcu/cdm
+
+data:
+  raw: /blue/smin.fgcu/rkale.fgcu/cdm/data/raw
+  processed: /blue/smin.fgcu/rkale.fgcu/cdm/data/processed
+  interim: /blue/smin.fgcu/rkale.fgcu/cdm/data/interim
+
+training:
+  checkpoints: /blue/smin.fgcu/rkale.fgcu/cdm/checkpoints
+  logs: /blue/smin.fgcu/rkale.fgcu/cdm/logs
+  outputs: /blue/smin.fgcu/rkale.fgcu/cdm/outputs
+
+slurm:
+  account: smin.fgcu
+  qos: smin.fgcu
+  partition: gpu
+  gpus: 1
+  cpus: 8
+  mem_gb: 60
+  max_hours: 24

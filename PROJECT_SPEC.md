@@ -282,3 +282,63 @@ When starting, please follow this stepwise plan instead of trying to do everythi
 - Sentinel‑2 mission description and basic facts. [docs.planet](https://docs.planet.com/data/public-data/copernicus/sentinel-2/)
 
 ***
+
+---
+
+## HiperGator Resource Constraints (READ BEFORE WRITING ANY CODE)
+
+### Storage Layout — CRITICAL
+| Location | Path | Quota | Use for |
+|----------|------|-------|---------|
+| HOME | `/home/rkale.fgcu/` | 40G total, **2.4G remaining** | Code, scripts, configs ONLY — DO NOT write data here |
+| BLUE | `/blue/smin.fgcu/rkale.fgcu/` | 1TB group quota, 829G free | ALL data, models, checkpoints, outputs |
+
+**Rule: NEVER write datasets, model weights, or outputs to /home. Always use /blue.**
+
+### Compute Allocation (group: smin.fgcu)
+- **CPUs:** 8 normalized (max `--ntasks=8` or `--cpus-per-task=8`)
+- **GPU:** 1 normalized GPU (A100 or L4 — NOT a B200, those are 100% utilized)
+- **Memory:** 62.5 GB max
+- **Time limit:** 744 hours/month (wall time)
+- **QOS:** `smin.fgcu` (default), `smin.fgcu-b` (burst — low priority, 4-day limit)
+- **Partition:** `gpu` or `hpg-ai` (same partition, duplicate)
+
+### SLURM Job Template — use this for ALL training jobs
+
+#!/bin/bash
+#SBATCH --job-name=cdm-train
+#SBATCH --account=smin.fgcu
+#SBATCH --qos=smin.fgcu
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=60G
+#SBATCH --time=24:00:00
+#SBATCH --output=/blue/smin.fgcu/rkale.fgcu/logs/%j.out
+#SBATCH --error=/blue/smin.fgcu/rkale.fgcu/logs/%j.err
+
+module load conda
+conda activate cdm
+
+cd /home/rkale.fgcu/local_project/conflict-damage-monitor
+python src/models/train.py --config configs/baseline.yaml
+
+
+### Canonical Paths
+PROJECT_ROOT = /home/rkale.fgcu/local_project/conflict-damage-monitor
+DATA_ROOT = /blue/smin.fgcu/rkale.fgcu/cdm/data
+CHECKPOINTS = /blue/smin.fgcu/rkale.fgcu/cdm/checkpoints
+LOGS = /blue/smin.fgcu/rkale.fgcu/cdm/logs
+OUTPUTS = /blue/smin.fgcu/rkale.fgcu/cdm/outputs
+
+
+### GPU Availability Note
+- B200 nodes: 100% utilized — do NOT target these
+- L4 nodes (hpg-turin): 55% utilized — good availability
+- Request generic `gpu:1` and let SLURM assign
+
+### Conda Environment
+- Name: `cdm`
+- Activate: `conda activate cdm`
+- Python: 3.10
