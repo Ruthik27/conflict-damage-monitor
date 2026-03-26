@@ -14,9 +14,9 @@
 ## Compute Constraints
 - Scheduler: SLURM
 - Max walltime: 48h
-- GPU partition: #SBATCH --partition=gpu --gres=gpu:a100:2
-- Always activate conda: conda activate cdm
+- Partition: gpu, gres: gpu:a100:2
 - Never run heavy compute on login node — write .sbatch scripts
+- Always activate: conda activate cdm
 
 ## Tech Stack
 - ML: PyTorch, EfficientNet-B4, UNet++, segmentation-models-pytorch
@@ -25,10 +25,18 @@
 - Backend: FastAPI, PostGIS, Docker
 - Frontend: React, Leaflet.js, Chart.js
 
+## Project Phases
+1. Data ingestion + preprocessing (tiling 512x512, augmentation)
+2. Baseline EfficientNet-B4 classifier
+3. UNet++ segmentation model
+4. Change detection (pre/post diff, F1 per class)
+5. FastAPI inference server + PostGIS
+6. React dashboard
+
 ## Code Rules
-- Use argparse for all CLI args
+- argparse for all CLI args
 - Log to wandb (project: conflict-damage-monitor)
-- Save checkpoints every 5 epochs to /blue/.../checkpoints/
-- No hardcoded paths — use config.yaml
-- No large files committed to git
+- Checkpoints every 5 epochs to /blue/.../checkpoints/
+- No hardcoded paths — use configs/train.yaml
+- No large data files in git
 - Update environment.yml when adding packages
