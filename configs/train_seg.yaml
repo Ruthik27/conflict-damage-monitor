@@ -1,32 +1,38 @@
 # =============================================================================
-# Training configuration — EfficientNet-B4 damage classifier
-# All paths come from configs/paths.yaml; nothing is hardcoded here.
+# Training configuration — UNet++ damage segmentation (Phase 3)
+# All paths from configs/paths.yaml; nothing hardcoded here.
 # =============================================================================
 
 # ── model ─────────────────────────────────────────────────────────────────────
 model:
-  name: efficientnet_b4          # timm model key
-  pretrained: true               # ImageNet weights
-  in_channels: 6                 # 3 pre + 3 post concatenated
-  num_classes: 4                 # no-damage / minor / major / destroyed
-  drop_rate: 0.3                 # classifier head dropout
+  encoder: efficientnet-b4
+  encoder_weights: imagenet
+  in_channels: 6                 # 3 pre + 3 post
+  num_classes: 5                 # 0=bg, 1=no-damage … 4=destroyed
+  decoder_attention: scse        # squeeze-excite in decoder blocks
 
 # ── data ──────────────────────────────────────────────────────────────────────
 data:
-  image_size: 512
-  include_tier3: true            # augment train with xBD tier-3 scenes
+  train_tile_size: 512           # random crop at train time
+  val_tile_size: 512             # tile size for sliding-window inference
+  val_tile_overlap: 128          # overlap for Gaussian blending
+  include_tier3: true
   num_workers: 8
   pin_memory: true
 
-# ── class weights (inverse log-frequency, xBD train+tier3 estimate) ───────────
-# Counts approx: no-damage 60%, minor 15%, major 12%, destroyed 13%
-# Recompute with src/data/compute_class_weights.py after full index is built.
-class_weights: [0.42, 1.68, 2.10, 1.94]
+# ── class weights (pixel-frequency estimate; recompute with scan script) ──────
+# bg pixels dominate — down-weight heavily; damage classes up-weighted.
+class_weights: [0.1, 0.6, 1.4, 1.8, 2.2]
+
+# ── loss ──────────────────────────────────────────────────────────────────────
+loss:
+  dice_weight: 0.5
+  ce_weight: 0.5
 
 # ── optimiser ─────────────────────────────────────────────────────────────────
 optimizer:
   name: adamw
-  lr: 3.0e-4
+  lr: 1.0e-4
   weight_decay: 1.0e-4
   betas: [0.9, 0.999]
 
@@ -38,25 +44,25 @@ scheduler:
 
 # ── training loop ─────────────────────────────────────────────────────────────
 trainer:
-  max_epochs: 50
-  batch_size: 16                 # per GPU on L4 24 GB; effective = 16 × accum 2 = 32
+  max_epochs: 60
+  batch_size: 4                  # per GPU on L4 24 GB fp16; effective = 4 × accum 4 = 16
   precision: "16-mixed"
   gradient_clip_val: 1.0
-  accumulate_grad_batches: 2
-  val_check_interval: 1.0        # validate every epoch
+  accumulate_grad_batches: 4
+  val_check_interval: 1.0
   log_every_n_steps: 20
 
 # ── checkpointing ─────────────────────────────────────────────────────────────
 checkpoint:
   every_n_epochs: 5
   save_top_k: 3
-  monitor: val_f1_macro
+  monitor: val_iou_macro
   mode: max
-  filename: "effb4-epoch{epoch:03d}-f1{val_f1_macro:.4f}"
+  filename: "unetpp-epoch{epoch:03d}-iou{val_iou_macro:.4f}"
 
 # ── logging ───────────────────────────────────────────────────────────────────
 wandb:
   project: conflict-damage-monitor
-  entity: null                   # set to your W&B username / team
-  tags: [efficientnet-b4, xbd, phase2]
-  log_model: false               # don't upload checkpoints to W&B artifacts
+  entity: null
+  tags: [unetpp, efficientnet-b4, xbd, phase3]
+  log_model: false

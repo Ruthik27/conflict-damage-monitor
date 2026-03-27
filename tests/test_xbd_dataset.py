@@ -294,6 +294,71 @@ class TestAugmentation:
         assert label1 == label2
 
 
+# ── PNG extension support ─────────────────────────────────────────────────────
+
+class TestPngSupport:
+    def test_png_images_are_discovered(self, tmp_path: Path) -> None:
+        """Dataset must find pre/post pairs when images are .png (real xBD format)."""
+        root = tmp_path / "raw" / "xbd"
+        images_dir = root / "train" / "images"
+        labels_dir = root / "train" / "labels"
+        images_dir.mkdir(parents=True)
+        labels_dir.mkdir(parents=True)
+
+        stems = ["hurricane_harvey_00000001", "hurricane_harvey_00000002"]
+        for stem in stems:
+            _write_geotiff(images_dir / f"{stem}_pre_disaster.png")
+            _write_geotiff(images_dir / f"{stem}_post_disaster.png")
+            _write_label_json(labels_dir / f"{stem}_post_disaster.json", ["major-damage"])
+
+        cfg_path = tmp_path / "configs" / "paths.yaml"
+        _write_paths_cfg(cfg_path, root.parent)
+
+        ds = XBDDataset(paths_cfg=cfg_path, split="train", include_tier3=False)
+        assert len(ds) == 2, f"Expected 2 PNG samples, got {len(ds)}"
+
+    def test_png_output_shape_and_dtype(self, tmp_path: Path) -> None:
+        """PNG samples must return the same (6, 512, 512) float32 tensor as TIF."""
+        root = tmp_path / "raw" / "xbd"
+        images_dir = root / "train" / "images"
+        labels_dir = root / "train" / "labels"
+        images_dir.mkdir(parents=True)
+        labels_dir.mkdir(parents=True)
+
+        stem = "socal_fire_00000001"
+        _write_geotiff(images_dir / f"{stem}_pre_disaster.png")
+        _write_geotiff(images_dir / f"{stem}_post_disaster.png")
+        _write_label_json(labels_dir / f"{stem}_post_disaster.json", ["destroyed"])
+
+        cfg_path = tmp_path / "configs" / "paths.yaml"
+        _write_paths_cfg(cfg_path, root.parent)
+
+        ds = XBDDataset(paths_cfg=cfg_path, split="train", include_tier3=False)
+        img, label = ds[0]
+        assert img.shape == (6, 512, 512)
+        assert img.dtype == __import__("torch").float32
+        assert label == 3  # destroyed
+
+    def test_mixed_tif_and_png_both_discovered(self, tmp_path: Path) -> None:
+        """A split with both .tif and .png files must discover all pairs."""
+        root = tmp_path / "raw" / "xbd"
+        images_dir = root / "train" / "images"
+        labels_dir = root / "train" / "labels"
+        images_dir.mkdir(parents=True)
+        labels_dir.mkdir(parents=True)
+
+        for stem, ext in [("event_a_00000001", ".tif"), ("event_b_00000001", ".png")]:
+            _write_geotiff(images_dir / f"{stem}_pre_disaster{ext}")
+            _write_geotiff(images_dir / f"{stem}_post_disaster{ext}")
+            _write_label_json(labels_dir / f"{stem}_post_disaster.json", ["no-damage"])
+
+        cfg_path = tmp_path / "configs" / "paths.yaml"
+        _write_paths_cfg(cfg_path, root.parent)
+
+        ds = XBDDataset(paths_cfg=cfg_path, split="train", include_tier3=False)
+        assert len(ds) == 2, f"Expected 2 samples (1 tif + 1 png), got {len(ds)}"
+
+
 # ── utility function ──────────────────────────────────────────────────────────
 
 class TestScaleToUint8:

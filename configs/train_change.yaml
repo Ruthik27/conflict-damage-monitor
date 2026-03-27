@@ -1,0 +1,57 @@
+# =============================================================================
+# Training configuration — Siamese UNet++ change detector (Phase 4)
+# =============================================================================
+
+model:
+  encoder: efficientnet-b4
+  encoder_weights: imagenet
+  in_channels: 3                 # per branch (pre OR post); concatenated = 6
+  num_classes: 5                 # 0=bg, 1-4=damage
+  decoder_attention: scse
+
+data:
+  train_tile_size: 512
+  val_tile_size: 512
+  val_tile_overlap: 128
+  include_tier3: true
+  num_workers: 8
+  pin_memory: true
+
+class_weights: [0.1, 0.6, 1.4, 1.8, 2.2]
+
+loss:
+  dice_weight: 0.5
+  ce_weight: 0.5
+
+optimizer:
+  name: adamw
+  lr: 5.0e-5                     # lower LR than segmentor — encoder is pretrained
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.999]
+
+scheduler:
+  name: cosine_with_warmup
+  warmup_epochs: 5
+  min_lr: 1.0e-6
+
+trainer:
+  max_epochs: 60
+  batch_size: 4
+  precision: "16-mixed"
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 4
+  val_check_interval: 1.0
+  log_every_n_steps: 20
+
+checkpoint:
+  every_n_epochs: 5
+  save_top_k: 3
+  monitor: val_iou_macro
+  mode: max
+  filename: "siamese-epoch{epoch:03d}-iou{val_iou_macro:.4f}"
+
+wandb:
+  project: conflict-damage-monitor
+  entity: null
+  tags: [siamese-unetpp, efficientnet-b4, xbd, phase4]
+  log_model: false

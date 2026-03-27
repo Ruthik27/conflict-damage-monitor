@@ -195,9 +195,13 @@ class XBDDataset(Dataset):
             return []
 
         pairs: list[tuple[Path, Path, Path]] = []
-        for pre_tif in sorted(images_dir.glob("*_pre_disaster.tif")):
+        pre_candidates = sorted(
+            [*images_dir.glob("*_pre_disaster.tif"), *images_dir.glob("*_pre_disaster.png")]
+        )
+        for pre_tif in pre_candidates:
             stem = pre_tif.stem.replace("_pre_disaster", "")
-            post_tif = images_dir / f"{stem}_post_disaster.tif"
+            ext = pre_tif.suffix  # preserve .tif or .png
+            post_tif = images_dir / f"{stem}_post_disaster{ext}"
             label_json = labels_dir / f"{stem}_post_disaster.json"
 
             if not post_tif.exists():

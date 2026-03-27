@@ -1,0 +1,144 @@
+_wandb:
+    value:
+        cli_version: 0.25.1
+        e:
+            a4yws3xkccfrgzu34v8x8hejm1gwum6h:
+                args:
+                    - --config
+                    - configs/train.yaml
+                    - --paths-cfg
+                    - configs/paths.yaml
+                    - --fast-dev-run
+                codePath: src/train/train.py
+                codePathLocal: src/train/train.py
+                cpu_count: 96
+                cpu_count_logical: 96
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "41956900864"
+                        used: "15684382720"
+                email: ruthikkale27@gmail.com
+                executable: /blue/smin.fgcu/rkale.fgcu/.conda/envs/cdm/bin/python
+                git:
+                    commit: 45996e8dd40bb8d05f0ada4510c7d9a087974cdf
+                    remote: https://github.com/Ruthik27/conflict-damage-monitor.git
+                gpu: NVIDIA L4
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 7424
+                      memoryTotal: "24152899584"
+                      name: NVIDIA L4
+                      uuid: GPU-39ef46df-44d1-db77-0134-9072f0983360
+                host: c0608a-s25.ufhpc
+                memory:
+                    total: "810706747392"
+                os: Linux-5.14.0-503.40.1.el9_5.x86_64-x86_64-with-glibc2.34
+                program: /home/rkale.fgcu/local_project/conflict-damage-monitor/src/train/train.py
+                python: CPython 3.10.20
+                root: .
+                slurm:
+                    cluster_name: hipergator
+                    conf: /opt/slurm/etc/slurm.conf
+                    cpu_bind: quiet,mask_cpu:0x0000F0000000000000000000
+                    cpu_bind_list: 0x0000F0000000000000000000
+                    cpu_bind_type: 'mask_cpu:'
+                    cpu_bind_verbose: quiet
+                    cpus_on_node: "4"
+                    cpus_per_task: "4"
+                    distribution: block
+                    gpus_on_node: "1"
+                    gtids: "0"
+                    job_account: smin.fgcu
+                    job_cpus_per_node: "4"
+                    job_end_time: "1774639755"
+                    job_gid: "3480"
+                    job_group: smin.fgcu
+                    job_id: "28134237"
+                    job_name: bash
+                    job_nodelist: c0608a-s25
+                    job_num_nodes: "1"
+                    job_partition: hpg-turin
+                    job_qos: smin.fgcu
+                    job_start_time: "1774638855"
+                    job_uid: "2104"
+                    job_user: rkale.fgcu
+                    jobid: "28134237"
+                    launch_node_ipaddr: 172.16.206.46
+                    localid: "0"
+                    mem_per_node: "20480"
+                    nnodes: "1"
+                    nodeid: "0"
+                    nodelist: c0608a-s25
+                    nprocs: "1"
+                    ntasks: "1"
+                    oom_kill_step: "0"
+                    prio_process: "0"
+                    procid: "0"
+                    pty_port: "40611"
+                    pty_win_col: "156"
+                    pty_win_row: "33"
+                    srun_comm_host: 172.16.206.46
+                    srun_comm_port: "40377"
+                    step_gpus: "1"
+                    step_id: "0"
+                    step_launcher_port: "40377"
+                    step_nodelist: c0608a-s25
+                    step_num_nodes: "1"
+                    step_num_tasks: "1"
+                    step_tasks_per_node: "1"
+                    stepid: "0"
+                    submit_dir: /home/rkale.fgcu/local_project/conflict-damage-monitor
+                    submit_host: login7.ufhpc
+                    task_pid: "629616"
+                    tasks_per_node: "1"
+                    tmpdir: /scratch/local/28134237
+                    topology_addr: ibcore.ibsw0608-s16.c0608a-s25
+                    topology_addr_pattern: switch.switch.node
+                    tres_per_task: cpu=4
+                    umask: "0022"
+                startedAt: "2026-03-27T19:15:31.222410Z"
+                writerId: a4yws3xkccfrgzu34v8x8hejm1gwum6h
+        m:
+            - "1": trainer/global_step
+              "6":
+                - 3
+              "7": []
+            - "2": '*'
+              "5": 1
+              "6":
+                - 1
+              "7": []
+        python_version: 3.10.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 9
+                - 41
+                - 49
+                - 53
+                - 63
+                - 80
+                - 103
+            "2":
+                - 1
+                - 5
+                - 9
+                - 41
+                - 49
+                - 53
+                - 63
+                - 80
+                - 103
+            "3":
+                - 1
+                - 7
+                - 15
+                - 62
+                - 66
+            "4": 3.10.20
+            "5": 0.25.1
+            "12": 0.25.1
+            "13": linux-x86_64
