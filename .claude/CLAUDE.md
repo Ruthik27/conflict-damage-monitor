@@ -14,7 +14,9 @@
 ## Compute Constraints
 - Scheduler: SLURM
 - Max walltime: 48h
-- Partition: gpu, gres: gpu:a100:2
+- Partition: hpg-turin (preferred — shorter queue than b200/a100)
+- GPU: L4 (24 GB VRAM), gres: gpu:l4:1
+- Batch size: 16 on L4, accumulate_grad_batches: 2 → effective 32
 - Never run heavy compute on login node — write .sbatch scripts
 - Always activate: conda activate cdm
 
